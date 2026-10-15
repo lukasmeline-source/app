@@ -2,7 +2,15 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#09090b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mâchoire">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Mâchoire</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
@@ -10,7 +18,9 @@
 :root{--bg:#f4f4f6;--s0:#fff;--s1:#ececf0;--s2:#e2e2e8;--s3:#d2d2da;--border:rgba(0,0,0,.07);--hi:rgba(255,255,255,.9);--text:#17171a;--muted:#6e6e78;--red:#e0233a;--red2:#f26a45;--red-bg:rgba(224,35,58,.12);--glow:rgba(224,35,58,.18);--glow2:rgba(242,106,69,.1);--r:16px;--r-sm:11px;--r-pill:100px;--trans:.2s ease;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#09090b;--s0:#141417;--s1:#1b1b20;--s2:#25252b;--s3:#33333b;--border:rgba(255,255,255,.07);--hi:rgba(255,255,255,.06);--text:#f2f2f4;--muted:#8d8d97;--red:#ff3b4e;--red2:#ff7a5c;--red-bg:rgba(255,59,78,.15);--glow:rgba(255,59,78,.24);--glow2:rgba(255,122,92,.1)}}
 :root[data-theme="dark"]{--bg:#09090b;--s0:#141417;--s1:#1b1b20;--s2:#25252b;--s3:#33333b;--border:rgba(255,255,255,.07);--hi:rgba(255,255,255,.06);--text:#f2f2f4;--muted:#8d8d97;--red:#ff3b4e;--red2:#ff7a5c;--red-bg:rgba(255,59,78,.15);--glow:rgba(255,59,78,.24);--glow2:rgba(255,122,92,.1)}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input{-webkit-user-select:text;user-select:text}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--text);font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100%}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(620px 420px at 90% -6%,var(--glow),transparent 70%),radial-gradient(520px 420px at -12% 104%,var(--glow2),transparent 70%)}
@@ -110,7 +120,7 @@ button.day{background:none;border:0;color:var(--muted)}
 .fbt{display:flex;gap:.5rem}.fbt .btn{font-size:.78rem;background:var(--s2)}
 .xr{color:var(--muted);font-size:.8rem;padding:.2rem .3rem}
 .phh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem}
-label.add{display:inline-block;width:auto;margin:0;padding:.5rem .9rem;cursor:pointer;color:var(--red)}
+.btn.add{display:inline-block;width:auto;margin:0;padding:.5rem .9rem;cursor:pointer;color:var(--red)}
 .cmp{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
 .cmp figure{margin:0}.cmp img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:var(--r-sm);background:var(--s2)}
 .cmp figcaption{font-size:.72rem;color:var(--muted);text-align:center;margin-top:.3rem}
@@ -123,6 +133,15 @@ label.add{display:inline-block;width:auto;margin:0;padding:.5rem .9rem;cursor:po
 #viewer img{flex:1;min-height:0;max-width:100%;object-fit:contain;border-radius:var(--r)}
 .toast{position:fixed;left:50%;bottom:calc(5rem + env(safe-area-inset-bottom,0px));transform:translate(-50%,10px);opacity:0;pointer-events:none;z-index:50;background:var(--s3);color:var(--text);padding:.6rem 1rem;border-radius:var(--r-pill);font-size:.82rem;transition:.25s}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+#cam{position:fixed;inset:0;z-index:30;background:#000;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:.6rem;padding:calc(.6rem + env(safe-area-inset-top,0px)) .8rem calc(.8rem + env(safe-area-inset-bottom,0px))}
+#cam[hidden]{display:none}
+.camt,.camb{width:100%;max-width:520px;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.camf{position:relative;width:min(100%,calc((100vh - 210px)*.75));width:min(100%,calc((100dvh - 210px)*.75));aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#111}
+.camf video,.camf img,.camf svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cc{position:absolute;inset:0;display:grid;place-items:center;font-size:6rem;font-weight:700;text-shadow:0 2px 20px rgba(0,0,0,.6);pointer-events:none}
+.cb{background:rgba(255,255,255,.16);color:#fff;border-radius:var(--r-pill);padding:.55rem .9rem;font-size:.8rem;font-weight:600;cursor:pointer}
+.shut{width:72px;height:72px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.35)}
+.shut:active{transform:scale(.94)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 @media(max-width:380px){.big{font-size:4rem}.cnt{font-size:3.4rem}}
 </style>
@@ -140,10 +159,11 @@ label.add{display:inline-block;width:auto;margin:0;padding:.5rem .9rem;cursor:po
 </nav>
 <div id="play" hidden></div>
 <div id="viewer" hidden></div>
+<div id="cam" hidden></div>
 <div id="toast" class="toast" role="status"></div>
 
 <script>
-const APP_BUILD_VERSION='2026-10-14.3';
+const APP_BUILD_VERSION='2026-10-14.4';
 const KEY='machoire_v1';
 const CAT={
 fb:{n:'Avant ↔ arrière',v:'side',m:['translateX(15px)','translateX(-15px)'],h:'Fais glisser la tête lentement d’avant en arrière.'},
@@ -282,17 +302,47 @@ const PK='machoire_photos_v1';
 let PH=[];try{PH=JSON.parse(localStorage.getItem(PK))||[]}catch(e){}
 function savePh(){try{localStorage.setItem(PK,JSON.stringify(PH));return true}catch(e){toast('Stockage plein : supprime d’anciennes photos');return false}}
 const fmtD=k=>parse(k).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'2-digit'});
-function addPhoto(view,inp){const f=inp.files&&inp.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{const im=new Image();im.onload=()=>{const sc=Math.min(1,520/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
-    PH.push({id:uid(),date:ds(),view,img:c.toDataURL('image/jpeg',.72)});if(!savePh())PH.pop();renderPhotos()};im.src=r.result};
-  r.readAsDataURL(f);inp.value=''}
+/* ---------- Caméra avec calque de repère ---------- */
+const GS='fill="none" stroke="#ff4d5e" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="7 6"';
+const GF='style="filter:drop-shadow(0 0 4px rgba(255,59,78,.7))"';
+const TX='fill="#fff" font-size="12" font-family="sans-serif"';
+const FACE_G=`<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" ${GF}><g ${GS}><ellipse cx="150" cy="168" rx="82" ry="104"/><path d="M40 148H260"/><path d="M104 272H196"/><path d="M30 340H270" opacity=".6"/></g><path d="M150 44V300" stroke="#ff4d5e" stroke-width="2" stroke-dasharray="2 8" stroke-linecap="round" opacity=".7"/><g fill="#ff4d5e"><circle cx="116" cy="148" r="5"/><circle cx="184" cy="148" r="5"/></g><g ${TX}><text x="150" y="22" text-anchor="middle">Regarde droit devant</text><text x="262" y="142" text-anchor="end">Yeux</text><text x="262" y="266" text-anchor="end">Menton</text><text x="268" y="334" text-anchor="end">Épaules</text></g></svg>`;
+const PROF_G=`<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" ${GF}><g ${GS}><path vector-effect="non-scaling-stroke" transform="translate(-99.6 -29.2) scale(2.4)" d="M72 82C66 50 92 36 112 42C130 48 134 66 134 78L142 94L134 98C135 106 134 112 128 118C122 126 112 130 100 130C86 130 74 118 72 104Z"/><path d="M40 153H260"/><path d="M107 120V300" stroke-dasharray="3 7"/><path d="M200 254H260"/><path d="M30 340H270" opacity=".6"/></g><g fill="#ff4d5e"><circle cx="193" cy="153" r="5"/><circle cx="107" cy="194" r="5"/></g><g ${TX}><text x="150" y="22" text-anchor="middle">De profil, regarde vers la droite</text><text x="262" y="147" text-anchor="end">Yeux</text><text x="40" y="188">Oreille</text><text x="262" y="248" text-anchor="end">Menton</text><text x="268" y="334" text-anchor="end">Épaules</text></g></svg>`;
+const MLAB={guide:'Repère',prev:'Dernière photo',none:'Sans repère'};
+let CAM=null;
+async function startStream(){try{CAM.st&&CAM.st.getTracks().forEach(t=>t.stop());
+  CAM.st=await navigator.mediaDevices.getUserMedia({video:{facingMode:CAM.face,width:{ideal:1280},height:{ideal:1280}},audio:false});
+  const v=$('#cv');v.srcObject=CAM.st;v.style.transform=CAM.face==='user'?'scaleX(-1)':'none';await v.play()}catch(e){toast('Caméra indisponible : utilise Importer')}}
+function openCam(view){const a=PH.filter(p=>p.view===view).sort((x,y)=>x.date<y.date?-1:1),prev=a.length?a[a.length-1].img:null;
+  CAM={view,face:view==='face'?'user':'environment',mode:0,timer:0,st:null,iv:null,prev,modes:prev?['guide','prev','none']:['guide','none']};
+  const c=$('#cam');c.hidden=false;
+  c.innerHTML=`<div class="camt"><button class="cb" onclick="closeCam()">Fermer</button><button class="cb" id="cm" onclick="camMode()">Repère</button><button class="cb" id="ct" onclick="camTimer()">Minuteur off</button></div>
+  <div class="camf"><video id="cv" playsinline muted autoplay></video><img id="cg" alt="" style="display:none;opacity:.4">${(view==='face'?FACE_G:PROF_G).replace('<svg ','<svg id="cs" ')}<div class="cc" id="cc"></div></div>
+  <div class="camb"><label class="cb">Importer<input type="file" accept="image/*" hidden onchange="importPh(this)"></label><button class="shut" aria-label="Prendre la photo" onclick="shot()"></button><button class="cb" onclick="camFlip()">Retourner</button></div>`;
+  if(prev)$('#cg').src=prev;
+  if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)startStream();else toast('Caméra indisponible : utilise Importer')}
+function camMode(){CAM.mode=(CAM.mode+1)%CAM.modes.length;const m=CAM.modes[CAM.mode];
+  $('#cs').style.display=m==='guide'?'':'none';$('#cg').style.display=m==='prev'?'':'none';$('#cm').textContent=MLAB[m]}
+function camTimer(){CAM.timer=({0:5,5:10,10:0})[CAM.timer];$('#ct').textContent=CAM.timer?'Minuteur '+CAM.timer+' s':'Minuteur off'}
+function camFlip(){CAM.face=CAM.face==='user'?'environment':'user';startStream()}
+function crop34(src,w,h,mirror){const tw=480,th=640,r=.75;let sw=w,sh=h,sx=0,sy=0;if(w/h>r){sw=h*r;sx=(w-sw)/2}else{sh=w/r;sy=(h-sh)/2}
+  const c=document.createElement('canvas');c.width=tw;c.height=th;const x=c.getContext('2d');if(mirror){x.translate(tw,0);x.scale(-1,1)}
+  x.drawImage(src,sx,sy,sw,sh,0,0,tw,th);return c.toDataURL('image/jpeg',.74)}
+function savePhoto(view,img){PH.push({id:uid(),date:ds(),view,img});if(!savePh()){PH.pop();return}closeCam();renderPhotos()}
+function shot(){const v=$('#cv');if(!v.videoWidth){toast('Caméra pas prête');return}
+  const go=()=>savePhoto(CAM.view,crop34(v,v.videoWidth,v.videoHeight,CAM.face==='user'));
+  if(!CAM.timer){go();return}let n=CAM.timer;const c=$('#cc');c.textContent=n;clearInterval(CAM.iv);
+  CAM.iv=setInterval(()=>{n--;if(n>0){c.textContent=n;beep(700,.08)}else{clearInterval(CAM.iv);c.textContent='';beep(990,.15);go()}},1000)}
+function importPh(inp){const f=inp.files&&inp.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{const im=new Image();im.onload=()=>savePhoto(CAM.view,crop34(im,im.width,im.height,false));im.src=r.result};r.readAsDataURL(f);inp.value=''}
+function closeCam(){if(!CAM)return;clearInterval(CAM.iv);try{CAM.st&&CAM.st.getTracks().forEach(t=>t.stop())}catch(e){}CAM=null;$('#cam').hidden=true;$('#cam').innerHTML=''}
 function cmpHTML(v,t){const a=PH.filter(p=>p.view===v).sort((x,y)=>x.date<y.date?-1:1);
   if(a.length<2)return`<div class="lbl">Ajoute au moins 2 photos de ${t.toLowerCase()} pour comparer.</div>`;
   const f=a[0],l=a[a.length-1],days=Math.round((parse(l.date)-parse(f.date))/864e5);
   return `<div class="cmp"><figure><img src="${f.img}" alt="Première photo"><figcaption>${fmtD(f.date)}</figcaption></figure><figure><img src="${l.img}" alt="Dernière photo"><figcaption>${fmtD(l.date)}</figcaption></figure></div><div class="lbl" style="text-align:center;margin-top:.4rem">${days} jour${days>1?'s':''} d’écart</div>`}
 function renderPhotos(){
   const sec=(v,t)=>{const a=PH.filter(p=>p.view===v).sort((x,y)=>x.date<y.date?1:-1);
-    return `<div class="card"><div class="phh"><b>${t}</b><label class="btn add">+ Photo<input type="file" accept="image/*" hidden onchange="addPhoto('${v}',this)"></label></div>${cmpHTML(v,t)}${a.length?`<div class="grid">${a.map(p=>`<button class="th" onclick="openPh('${p.id}')"><img src="${p.img}" alt="Photo du ${p.date}"><span>${fmtD(p.date)}</span></button>`).join('')}</div>`:''}</div>`};
+    return `<div class="card"><div class="phh"><b>${t}</b><button class="btn add" onclick="openCam('${v}')">+ Photo</button></div>${cmpHTML(v,t)}${a.length?`<div class="grid">${a.map(p=>`<button class="th" onclick="openPh('${p.id}')"><img src="${p.img}" alt="Photo du ${p.date}"><span>${fmtD(p.date)}</span></button>`).join('')}</div>`:''}</div>`};
   $('#photos').innerHTML=`<div class="ph"><h2>Mes <em>photos</em></h2></div>`+sec('profil','Profil')+sec('face','Face')+`<div class="lbl" style="text-align:center">Les photos restent dans ce navigateur, sur cet appareil.</div>`}
 let vArm=null;
 function openPh(id){const p=PH.find(x=>x.id===id);if(!p)return;vArm=null;const v=$('#viewer');v.hidden=false;
@@ -375,6 +425,8 @@ function finish(){clearInterval(P.iv);P=null;try{wl&&wl.release()}catch(e){}
     <div class="psub">${st>1?'Jours d’affilée. Reviens demain pour garder ta série.':'C’est parti. Reviens demain pour lancer ta série.'}</div></div>
     <div class="ctl"><button class="btn red" onclick="closeP()">Terminer</button></div>`}
 
+document.addEventListener('gesturestart',e=>e.preventDefault());
+if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('sw.js').catch(()=>{});
 nav('home');
 </script>
 </body>
