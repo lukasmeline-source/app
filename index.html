@@ -142,6 +142,9 @@ button.day{background:none;border:0;color:var(--muted)}
 .cb{background:rgba(255,255,255,.16);color:#fff;border-radius:var(--r-pill);padding:.55rem .9rem;font-size:.8rem;font-weight:600;cursor:pointer}
 .shut{width:72px;height:72px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.35)}
 .shut:active{transform:scale(.94)}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);width:min(calc(100% - 1.6rem),504px);bottom:calc(4.8rem + env(safe-area-inset-bottom,0px));z-index:6;background:linear-gradient(155deg,var(--s1),var(--s2));border:1px solid var(--border);border-radius:var(--r);padding:.8rem 1rem;box-shadow:0 18px 40px -12px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:space-between;gap:.6rem}
+.shb{display:flex;gap:.5rem}
+.sheet .btn{margin:0;width:auto;padding:.6rem .9rem;font-size:.8rem}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 @media(max-width:380px){.big{font-size:4rem}.cnt{font-size:3.4rem}}
 </style>
@@ -163,7 +166,7 @@ button.day{background:none;border:0;color:var(--muted)}
 <div id="toast" class="toast" role="status"></div>
 
 <script>
-const APP_BUILD_VERSION='2026-10-14.4';
+const APP_BUILD_VERSION='2026-10-15.1';
 const KEY='machoire_v1';
 const CAT={
 fb:{n:'Avant ↔ arrière',v:'side',m:['translateX(15px)','translateX(-15px)'],h:'Fais glisser la tête lentement d’avant en arrière.'},
@@ -203,7 +206,14 @@ let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('sh
 
 /* ---------- Streak + jour de repos (1 par semaine, ne casse pas la série) ---------- */
 const weekStart=d=>ds(addD(d,-((d.getDay()+6)%7)));
-function toggleRest(k){if(k>ds()||S.log[k])return;
+let DAYSEL=null,armedDay=null,LASTK=null;
+function sheetHTML(){const k=DAYSEL;if(!k||!S.log[k])return'';const n=S.log[k];
+  return `<div class="sheet" role="dialog"><div><b>${fmtD(k)}</b><div class="lbl">${n} séance${n>1?'s':''} ce jour</div></div><div class="shb"><button class="btn" onclick="DAYSEL=null;armedDay=null;renderHome()">Fermer</button><button class="btn red" onclick="rmLog('${k}')">${armedDay===k?'Confirmer':'Supprimer'}</button></div></div>`}
+function rmLog(k){if(armedDay!==k){armedDay=k;renderHome();return}
+  if(S.log[k]>1)S.log[k]--;else delete S.log[k];
+  armedDay=null;if(!S.log[k])DAYSEL=null;save();renderHome();toast('Séance supprimée')}
+function undoLast(){if(!LASTK)return;if(S.log[LASTK]>1)S.log[LASTK]--;else delete S.log[LASTK];LASTK=null;save();closeP();toast('Séance annulée')}
+function toggleRest(k){if(S.log[k]){DAYSEL=DAYSEL===k?null:k;armedDay=null;renderHome();return}DAYSEL=null;if(k>ds())return;
   if(S.rest[k])delete S.rest[k];
   else{const w=weekStart(parse(k));if(Object.keys(S.rest).some(x=>weekStart(parse(x))===w)){toast('Un seul jour de repos par semaine');return}S.rest[k]=1}
   save();renderHome()}
@@ -248,7 +258,7 @@ function renderHome(){
     <div class="bar"><i style="width:${pct}%"></i></div>
     <div class="lbl" style="margin-top:.45rem">Objectif : ${g} jours d’affilée · encore ${g-st}</div>
     <div class="week">${wk}</div>
-    <div class="lbl" style="margin-top:.8rem">Touche un jour sans séance pour le marquer en repos (1 par semaine, ta série continue).</div>
+    <div class="lbl" style="margin-top:.8rem">Touche un jour sans séance pour le marquer en repos (1 par semaine), ou un jour avec séance pour la supprimer.</div>
   </div>
   <div class="row2">
     <div class="card"><div class="lbl">Record</div><div class="val">${b} j</div></div>
@@ -258,7 +268,8 @@ function renderHome(){
   <div class="card sess"><div><b>${esc(s.name)}</b><div class="lbl">${n} exo${n>1?'s':''} · environ ${mins(s)} min</div></div>
     <button class="go" aria-label="Démarrer ${esc(s.name)}" onclick="play(${i})"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button></div>`}).join('')}
   <div class="card">${calHTML()}</div>
-  <div class="card"><b>Badges</b>${badgesHTML(b,tot)}</div>`;
+  <div class="card"><b>Badges</b>${badgesHTML(b,tot)}</div>
+  ${sheetHTML()}`;
 }
 
 /* ---------- Config ---------- */
@@ -418,12 +429,12 @@ function skip(){if(!P)return;P.paused=false;$('#pp').textContent='Pause';
   const j=P.st.findIndex((t,k)=>k>P.i&&t.t==='rest');j<0?finish():begin(j)}
 function closeP(){if(P){clearInterval(P.iv);P=null}try{wl&&wl.release()}catch(e){}wl=null;$('#play').hidden=true;renderHome()}
 function finish(){clearInterval(P.iv);P=null;try{wl&&wl.release()}catch(e){}
-  const k=ds();S.log[k]=(S.log[k]||0)+1;delete S.rest[k];save();beep(660,.15);setTimeout(()=>beep(990,.25),180);buzz([60,60,120]);
+  const k=ds();S.log[k]=(S.log[k]||0)+1;LASTK=k;delete S.rest[k];save();beep(660,.15);setTimeout(()=>beep(990,.25),180);buzz([60,60,120]);
   const st=streak();
   $('#play').classList.remove('rest');
   $('#play').innerHTML=`<div class="mid" style="text-align:center"><div class="lbl">Séance terminée</div><div class="big" style="font-size:7rem">${st}<span class="unit">jour${st>1?'s':''}</span></div>
     <div class="psub">${st>1?'Jours d’affilée. Reviens demain pour garder ta série.':'C’est parti. Reviens demain pour lancer ta série.'}</div></div>
-    <div class="ctl"><button class="btn red" onclick="closeP()">Terminer</button></div>`}
+    <div class="ctl"><button class="btn" onclick="undoLast()">Annuler la séance</button><button class="btn red" onclick="closeP()">Terminer</button></div>`}
 
 document.addEventListener('gesturestart',e=>e.preventDefault());
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('sw.js').catch(()=>{});
